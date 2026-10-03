@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Mobile Karaoke Access Code Manager</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    background:#080808;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    padding:20px;
+}
+
+.container{
+    max-width:1250px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin:5px 0 20px;
+    font-size:28px;
+}
+
+.panel{
+    background:#151515;
+    border:1px solid #333;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:18px;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+}
+
+.formGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.field label{
+    font-size:13px;
+    color:#aaa;
+}
+
+input,select{
+    width:100%;
+    height:46px;
+    border:1px solid #444;
+    border-radius:8px;
+    background:#0b0b0b;
+    color:white;
+    padding:0 12px;
+    font-size:16px;
+    outline:none;
+}
+
+input:focus,
+select:focus{
+    border-color:#00e5ff;
+}
+
+button{
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.generateBtn{
+    width:100%;
+    height:48px;
+    margin-top:14px;
+    background:#00d084;
+    color:#00140c;
+    font-size:16px;
+}
+
+.generateBtn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.generatedBox{
+    display:none;
+    margin-top:18px;
+    padding:15px;
+    border:1px solid #00d084;
+    border-radius:10px;
+    background:#092016;
+}
+
+.generatedTitle{
+    font-size:12px;
+    color:#8affc8;
+    margin-bottom:8px;
+}
+
+.generatedRow{
+    display:flex;
+    gap:8px;
+}
+
+.generatedCode{
+    flex:1;
+    height:45px;
+    background:#000;
+    border:1px solid #333;
+    border-radius:8px;
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    font-size:20px;
+    font-weight:bold;
+    letter-spacing:2px;
+    color:#00ff9d;
+}
+
+.copyBtn{
+    width:100px;
+    background:#2196f3;
+    color:white;
+    font-size:14px;
+}
+
+.statusMessage{
+    text-align:center;
+    margin-top:10px;
+    min-height:20px;
+    color:#aaa;
+    font-size:13px;
+}
+
+.firebaseStatus{
+    text-align:center;
+    margin-bottom:15px;
+    padding:10px;
+    border-radius:8px;
+    font-size:13px;
+    background:#101010;
+    border:1px solid #292929;
+}
+
+.online{
+    color:#42ff9a;
+}
+
+.offline{
+    color:#ff6565;
+}
+
+.stats,
+.ordersStats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.stat,
+.orderStat{
+    background:#0d0d0d;
+    border:1px solid #292929;
+    border-radius:10px;
+    padding:13px;
+    text-align:center;
+}
+
+.statNumber,
+.orderStatNumber{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.statLabel,
+.orderStatLabel{
+    margin-top:4px;
+    color:#999;
+    font-size:12px;
+}
+
+.searchBox{
+    margin-bottom:14px;
+}
+
+.searchBox input{
+    height:42px;
+}
+
+.tableWrap{
+    width:100%;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:900px;
+}
+
+th{
+    background:#202020;
+    color:#bbb;
+    font-size:12px;
+    text-align:left;
+    padding:12px 10px;
+    border-bottom:1px solid #333;
+}
+
+td{
+    padding:11px 10px;
+    border-bottom:1px solid #242424;
+    font-size:13px;
+    vertical-align:middle;
+}
+
+tr:hover td{
+    background:#111;
+}
+
+.code{
+    font-weight:bold;
+    letter-spacing:1px;
+    color:#00e5ff;
+}
+
+.badge,
+.orderBadge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:80px;
+    padding:6px 9px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.badge.active,
+.orderBadge.approved{
+    background:#073b20;
+    color:#42ff9a;
+    border:1px solid #0b8f4e;
+}
+
+.badge.unclaimed,
+.orderBadge.pending{
+    background:#3b3000;
+    color:#ffd84a;
+    border:1px solid #8d7400;
+}
+
+.badge.expired,
+.orderBadge.rejected{
+    background:#3b0808;
+    color:#ff6868;
+    border:1px solid #9b2222;
+}
+
+.actionBtn{
+    padding:7px 10px;
+    margin-right:4px;
+    font-size:11px;
+    color:white;
+}
+
+.copySmall{
+    background:#1976d2;
+}
+
+.deleteBtn,
+.rejectBtn{
+    background:#b71c1c;
+}
+
+.approveBtn{
+    background:#00a86b;
+    color:white;
+    padding:8px 11px;
+    margin-right:5px;
+    font-size:11px;
+}
+
+.rejectBtn{
+    color:white;
+    padding:8px 11px;
+    font-size:11px;
+}
+
+.empty{
+    text-align:center;
+    color:#777;
+    padding:35px 10px;
+}
+
+.loading{
+    text-align:center;
+    padding:30px;
+    color:#aaa;
+}
+
+.orderTable{
+    min-width:1250px;
+}
+
+.orderPending{
+    color:#ffd84a;
+}
+
+.orderApproved{
+    color:#42ff9a;
+}
+
+.orderRejected{
+    color:#ff6868;
+}
+
+.viewCode{
+    color:#00ff9d;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+
+.orderMessage{
+    max-width:180px;
+    word-break:break-word;
+    color:#bbb;
+}
+
+.bottomFilters{
+    position:sticky;
+    bottom:0;
+    z-index:50;
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+
+    margin-top:18px;
+    padding:10px;
+
+    background:rgba(8,8,8,.96);
+    border:1px solid #303030;
+    border-radius:12px;
+
+    backdrop-filter:blur(8px);
+}
+
+.filterBtn{
+    height:48px;
+    background:#1a1a1a;
+    color:#aaa;
+    border:1px solid #333;
+    font-size:13px;
+}
+
+.filterBtn.activeTab{
+    color:white;
+}
+
+.filterBtn.activeTab.activeFilter{
+    background:#073b20;
+    border-color:#12a85d;
+    color:#42ff9a;
+}
+
+.filterBtn.activeTab.unclaimedFilter{
+    background:#3b3000;
+    border-color:#9a7c00;
+    color:#ffd84a;
+}
+
+.filterBtn.activeTab.expiredFilter{
+    background:#3b0808;
+    border-color:#a52a2a;
+    color:#ff6868;
+}
+
+@media(max-width:700px){
+
+    body{
+        padding:10px;
+    }
+
+    h1{
+        font-size:21px;
+    }
+
+    .panel{
+        padding:14px;
+    }
+
+    .formGrid{
+        grid-template-columns:1fr;
+    }
+
+    .stats,
+    .ordersStats{
+        grid-template-columns:1fr 1fr 1fr;
+    }
+
+    .stat,
+    .orderStat{
+        padding:9px 4px;
+    }
+
+    .statNumber,
+    .orderStatNumber{
+        font-size:20px;
+    }
+
+    .statLabel,
+    .orderStatLabel{
+        font-size:10px;
+    }
+
+    .generatedRow{
+        flex-direction:column;
+    }
+
+    .copyBtn{
+        width:100%;
+        height:42px;
+    }
+
+    .bottomFilters{
+        gap:5px;
+        padding:7px;
+    }
+
+    .filterBtn{
+        height:44px;
+        font-size:11px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎤 MOBILE KARAOKE ACCESS CODE MANAGER</h1>
+
+<div class="firebaseStatus" id="firebaseStatus">
+    Connecting to Firebase...
+</div>
+
+<div class="panel">
+
+<div class="formGrid">
+
+<div class="field">
+<label>USERNAME</label>
+
+<input
+ type="text"
+ id="username"
+ placeholder="Enter username"
+ autocomplete="off">
+
+</div>
+
+<div class="field">
+<label>PLAN</label>
+
+<select id="plan">
+    <option value="5_minutes">5 Minutes</option>
+    <option value="7_days">7 Days</option>
+    <option value="2_weeks">2 Weeks</option>
+    <option value="1_month">1 Month</option>
+    <option value="6_months">6 Months</option>
+    <option value="1_year">1 Year</option>
+    <option value="lifetime">Lifetime</option>
+</select>
+</div>
+
+</div>
+
+<button
+ class="generateBtn"
+ id="generateBtn">
+GENERATE ACCESS CODE </button>
+
+<div class="generatedBox" id="generatedBox">
+
+<div class="generatedTitle">
+    GENERATED ACCESS CODE
+</div>
+
+<div class="generatedRow">
+
+<div
+    class="generatedCode"
+    id="generatedCode">
+</div>
+
+<button
+ class="copyBtn"
+ id="copyGeneratedBtn">
+COPY </button>
+
+</div>
+
+</div>
+
+<div
+    class="statusMessage"
+    id="statusMessage">
+</div>
+
+</div>
+
+<div class="panel">
+
+<h2 style="margin-top:0;color:#00e5ff;font-size:19px;">
+    🛒 CUSTOMER ORDERS
+</h2>
+
+<div class="ordersStats">
+
+<div class="orderStat">
+<div
+    class="orderStatNumber orderPending"
+    id="pendingOrderCount">
+    0
+</div>
+
+<div class="orderStatLabel">
+    PENDING
+</div>
+</div>
+
+<div class="orderStat">
+<div
+    class="orderStatNumber orderApproved"
+    id="approvedOrderCount">
+    0
+</div>
+
+<div class="orderStatLabel">
+    APPROVED
+</div>
+</div>
+
+<div class="orderStat">
+<div
+    class="orderStatNumber orderRejected"
+    id="rejectedOrderCount">
+    0
+</div>
+
+<div class="orderStatLabel">
+    REJECTED
+</div>
+</div>
+
+</div>
+
+<div
+    class="searchBox">
+
+<input
+ type="text"
+ id="orderSearch"
+ placeholder="Search order, customer, reference or sender..."
+ autocomplete="off">
+
+</div>
+
+<div
+    class="tableWrap"
+    id="ordersContainer">
+
+<div class="loading">
+    Loading customer orders...
+</div>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="stats">
+
+<div class="stat">
+<div
+    class="statNumber"
+    id="activeCount">
+    0
+</div>
+
+<div class="statLabel">
+    ACTIVE
+</div>
+</div>
+
+<div class="stat">
+<div
+    class="statNumber"
+    id="unclaimedCount">
+    0
+</div>
+
+<div class="statLabel">
+    UNCLAIMED
+</div>
+</div>
+
+<div class="stat">
+<div
+    class="statNumber"
+    id="expiredCount">
+    0
+</div>
+
+<div class="statLabel">
+    EXPIRED
+</div>
+</div>
+
+</div>
+
+<div class="searchBox">
+
+<input
+ type="text"
+ id="searchInput"
+ placeholder="Search code or username..."
+ autocomplete="off">
+
+</div>
+
+<div
+    class="tableWrap"
+    id="tableContainer">
+
+<div class="loading">
+    Loading access codes...
+</div>
+
+</div>
+
+</div>
+
+<div class="bottomFilters">
+
+<button
+ class="filterBtn activeTab activeFilter"
+ id="activeFilterBtn">
+ACTIVE <span id="activeTabCount">(0)</span> </button>
+
+<button
+ class="filterBtn"
+ id="unclaimedFilterBtn">
+UNCLAIMED <span id="unclaimedTabCount">(0)</span> </button>
+
+<button
+ class="filterBtn"
+ id="expiredFilterBtn">
+EXPIRED <span id="expiredTabCount">(0)</span> </button>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    set,
+    update,
+    onValue,
+    remove
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+
+const firebaseConfig = {
+    apiKey:"AIzaSyBazlMeI2E5yEwULJcYqVhaykRGEr2pSC5C",
+    authDomain:"mobikaraoke.firebaseapp.com",
+    projectId:"mobikaraoke",
+    storageBucket:"mobikaraoke.firebasestorage.app",
+    messagingSenderId:"851243831675",
+    appId:"1:851243831675:web:14a61572210c218b926dde",
+    measurementId:"G-P2TY5LWBS6",
+    databaseURL:"https://mobikaraoke-default-rtdb.firebaseio.com/"
+};
+
+
+const app =
+    initializeApp(firebaseConfig);
+
+const db =
+    getDatabase(app);
+
+
+const firebaseStatus =
+    document.getElementById("firebaseStatus");
+
+const usernameInput =
+    document.getElementById("username");
+
+const planSelect =
+    document.getElementById("plan");
+
+const generateBtn =
+    document.getElementById("generateBtn");
+
+const generatedBox =
+    document.getElementById("generatedBox");
+
+const generatedCode =
+    document.getElementById("generatedCode");
+
+const copyGeneratedBtn =
+    document.getElementById("copyGeneratedBtn");
+
+const statusMessage =
+    document.getElementById("statusMessage");
+
+const tableContainer =
+    document.getElementById("tableContainer");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const activeCount =
+    document.getElementById("activeCount");
+
+const unclaimedCount =
+    document.getElementById("unclaimedCount");
+
+const expiredCount =
+    document.getElementById("expiredCount");
+
+const activeTabCount =
+    document.getElementById("activeTabCount");
+
+const unclaimedTabCount =
+    document.getElementById("unclaimedTabCount");
+
+const expiredTabCount =
+    document.getElementById("expiredTabCount");
+
+const activeFilterBtn =
+    document.getElementById("activeFilterBtn");
+
+const unclaimedFilterBtn =
+    document.getElementById("unclaimedFilterBtn");
+
+const expiredFilterBtn =
+    document.getElementById("expiredFilterBtn");
+
+const ordersContainer =
+    document.getElementById("ordersContainer");
+
+const orderSearch =
+    document.getElementById("orderSearch");
+
+const pendingOrderCount =
+    document.getElementById("pendingOrderCount");
+
+const approvedOrderCount =
+    document.getElementById("approvedOrderCount");
+
+const rejectedOrderCount =
+    document.getElementById("rejectedOrderCount");
+
+
+let allCodes = {};
+let allOrders = {};
+let currentFilter = "active";
+
+
+const planNames = {
+    "5_minutes":"5 Minutes",
+    "7_days":"7 Days",
+    "2_weeks":"2 Weeks",
+    "1_month":"1 Month",
+    "6_months":"6 Months",
+    "1_year":"1 Year",
+    "lifetime":"Lifetime"
+};
+
+
+function generateCode(){
+
+    const chars =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    let result = "MK";
+
+    for(let i=0;i<8;i++){
+
+        result +=
+            chars[
+                Math.floor(
+                    Math.random() *
+                    chars.length
+                )
+            ];
+    }
+
+    return result;
+}
+
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+function formatDate(timestamp){
+
+    if(!timestamp)
+        return "—";
+
+    const date =
+        new Date(timestamp);
+
+    if(isNaN(date.getTime()))
+        return "—";
+
+    return date.toLocaleString(
+        undefined,
+        {
+            year:"numeric",
+            month:"short",
+            day:"2-digit",
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+}
+
+
+function getStatus(data){
+
+    if(!data)
+        return "expired";
+
+    if(
+        data.active === true &&
+        data.plan === "lifetime"
+    ){
+        return "active";
+    }
+
+    if(
+        data.active === true &&
+        data.expiresAt &&
+        Number(data.expiresAt) > Date.now()
+    ){
+        return "active";
+    }
+
+    if(data.active === false){
+
+        if(
+            !data.expiresAt ||
+            Number(data.expiresAt) > Date.now()
+        ){
+            return "unclaimed";
+        }
+    }
+
+    if(
+        data.expiresAt &&
+        Number(data.expiresAt) <= Date.now()
+    ){
+        return "expired";
+    }
+
+    return "unclaimed";
+}
+
+
+generateBtn.addEventListener(
+    "click",
+    async () => {
+
+        const username =
+            usernameInput.value.trim();
+
+        const plan =
+            planSelect.value;
+
+        if(!username){
+
+            statusMessage.textContent =
+                "Please enter a username.";
+
+            statusMessage.style.color =
+                "#ff6868";
+
+            usernameInput.focus();
+
+            return;
+        }
+
+        generateBtn.disabled = true;
+
+        generateBtn.textContent =
+            "GENERATING...";
+
+        try{
+
+            let code = "";
+            let exists = true;
+
+            while(exists){
+
+                code =
+                    generateCode();
+
+                exists =
+                    !!allCodes[code];
+            }
+
+            const record = {
+
+                username:username,
+
+                active:false,
+
+                createdAt:Date.now(),
+
+                activatedAt:null,
+
+                expiresAt:null,
+
+                plan:plan
+            };
+
+            await set(
+                ref(
+                    db,
+                    "accessCodes/" + code
+                ),
+                record
+            );
+
+            generatedCode.textContent =
+                code;
+
+            generatedBox.style.display =
+                "block";
+
+            statusMessage.textContent =
+                "Access code generated successfully.";
+
+            statusMessage.style.color =
+                "#42ff9a";
+
+            usernameInput.value = "";
+
+        }catch(error){
+
+            console.error(error);
+
+            statusMessage.textContent =
+                "Firebase Error: " +
+                (
+                    error.message ||
+                    error.code ||
+                    "Unknown error"
+                );
+
+            statusMessage.style.color =
+                "#ff6868";
+        }
+
+        generateBtn.disabled = false;
+
+        generateBtn.textContent =
+            "GENERATE ACCESS CODE";
+    }
+);
+
+
+async function copyText(text,button){
+
+    try{
+
+        await navigator.clipboard.writeText(text);
+
+    }catch(error){
+
+        const temp =
+            document.createElement("textarea");
+
+        temp.value = text;
+
+        document.body.appendChild(temp);
+
+        temp.select();
+
+        document.execCommand("copy");
+
+        temp.remove();
+    }
+
+    const old =
+        button.textContent;
+
+    button.textContent =
+        "COPIED";
+
+    setTimeout(
+        () => {
+            button.textContent = old;
+        },
+        1000
+    );
+}
+
+
+copyGeneratedBtn.addEventListener(
+    "click",
+    () => {
+
+        const code =
+            generatedCode.textContent.trim();
+
+        if(code){
+
+            copyText(
+                code,
+                copyGeneratedBtn
+            );
+        }
+    }
+);
+
+
+async function deleteCode(code){
+
+    if(!allCodes[code])
+        return;
+
+    if(
+        !confirm(
+            "Delete access code " +
+            code +
+            "?\n\nThis cannot be undone."
+        )
+    ){
+        return;
+    }
+
+    try{
+
+        await remove(
+            ref(
+                db,
+                "accessCodes/" + code
+            )
+        );
+
+    }catch(error){
+
+        alert(
+            "Failed to delete access code:\n" +
+            (
+                error.message ||
+                error.code ||
+                "Unknown error"
+            )
+        );
+    }
+}
+
+
+function renderTable(){
+
+    const search =
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
+    let filtered =
+        Object.entries(allCodes)
+            .filter(
+                ([code,data]) => {
+
+                    const status =
+                        getStatus(data);
+
+                    if(
+                        status !==
+                        currentFilter
+                    ){
+                        return false;
+                    }
+
+                    if(!search)
+                        return true;
+
+                    const username =
+                        String(
+                            data.username || ""
+                        ).toLowerCase();
+
+                    return (
+                        code.toLowerCase()
+                            .includes(search)
+                        ||
+                        username.includes(search)
+                    );
+                }
+            );
+
+    filtered.sort(
+        ([a,dataA],[b,dataB]) =>
+            Number(dataB.createdAt || 0) -
+            Number(dataA.createdAt || 0)
+    );
+
+    if(!filtered.length){
+
+        tableContainer.innerHTML =
+            `<div class="empty">
+                No ${currentFilter} access codes found.
+            </div>`;
+
+        return;
+    }
+
+    let html = `
+    <table>
+    <thead>
+    <tr>
+        <th>ACCESS CODE</th>
+        <th>USERNAME</th>
+        <th>PLAN</th>
+        <th>CREATED</th>
+        <th>ACTIVATED</th>
+        <th>EXPIRES</th>
+        <th>STATUS</th>
+        <th>ACTIONS</th>
+    </tr>
+    </thead>
+    <tbody>
+    `;
+
+    for(
+        const [code,data]
+        of filtered
+    ){
+
+        const status =
+            getStatus(data);
+
+        const statusText =
+            status.toUpperCase();
+
+        html += `
+        <tr>
+
+        <td>
+            <span class="code">
+                ${escapeHTML(code)}
+            </span>
+        </td>
+
+        <td>
+            ${escapeHTML(
+                data.username || "—"
+            )}
+        </td>
+
+        <td>
+            ${escapeHTML(
+                planNames[data.plan] ||
+                data.plan ||
+                "—"
+            )}
+        </td>
+
+        <td>
+            ${formatDate(data.createdAt)}
+        </td>
+
+        <td>
+            ${formatDate(data.activatedAt)}
+        </td>
+
+        <td>
+            ${
+                data.plan === "lifetime"
+                ? "NEVER"
+                : formatDate(data.expiresAt)
+            }
+        </td>
+
+        <td>
+            <span class="badge ${status}">
+                ${statusText}
+            </span>
+        </td>
+
+        <td>
+
+            <button
+                class="actionBtn copySmall"
+                data-copy="${escapeHTML(code)}">
+                COPY
+            </button>
+
+            <button
+                class="actionBtn deleteBtn"
+                data-delete="${escapeHTML(code)}">
+                DELETE
+            </button>
+
+        </td>
+
+        </tr>
+        `;
+    }
+
+    html += `
+    </tbody>
+    </table>
+    `;
+
+    tableContainer.innerHTML = html;
+
+    tableContainer
+        .querySelectorAll("[data-copy]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    copyText(
+                        button.dataset.copy,
+                        button
+                    );
+                }
+            );
+        });
+
+    tableContainer
+        .querySelectorAll("[data-delete]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    deleteCode(
+                        button.dataset.delete
+                    );
+                }
+            );
+        });
+}
+
+
+function updateCounts(){
+
+    let active = 0;
+    let unclaimed = 0;
+    let expired = 0;
+
+    Object.values(allCodes)
+        .forEach(data => {
+
+            const status =
+                getStatus(data);
+
+            if(status === "active")
+                active++;
+
+            else if(status === "unclaimed")
+                unclaimed++;
+
+            else
+                expired++;
+        });
+
+    activeCount.textContent = active;
+    unclaimedCount.textContent = unclaimed;
+    expiredCount.textContent = expired;
+
+    activeTabCount.textContent =
+        "(" + active + ")";
+
+    unclaimedTabCount.textContent =
+        "(" + unclaimed + ")";
+
+    expiredTabCount.textContent =
+        "(" + expired + ")";
+}
+
+
+function setFilter(filter){
+
+    currentFilter = filter;
+
+    activeFilterBtn.className =
+        "filterBtn";
+
+    unclaimedFilterBtn.className =
+        "filterBtn";
+
+    expiredFilterBtn.className =
+        "filterBtn";
+
+    if(filter === "active"){
+
+        activeFilterBtn.classList.add(
+            "activeTab",
+            "activeFilter"
+        );
+    }
+
+    if(filter === "unclaimed"){
+
+        unclaimedFilterBtn.classList.add(
+            "activeTab",
+            "unclaimedFilter"
+        );
+    }
+
+    if(filter === "expired"){
+
+        expiredFilterBtn.classList.add(
+            "activeTab",
+            "expiredFilter"
+        );
+    }
+
+    renderTable();
+}
+
+
+activeFilterBtn.addEventListener(
+    "click",
+    () => setFilter("active")
+);
+
+unclaimedFilterBtn.addEventListener(
+    "click",
+    () => setFilter("unclaimed")
+);
+
+expiredFilterBtn.addEventListener(
+    "click",
+    () => setFilter("expired")
+);
+
+searchInput.addEventListener(
+    "input",
+    renderTable
+);
+
+
+function updateOrderCounts(){
+
+    let pending = 0;
+    let approved = 0;
+    let rejected = 0;
+
+    Object.values(allOrders)
+        .forEach(order => {
+
+            const status =
+                order.status || "pending";
+
+            if(status === "pending")
+                pending++;
+
+            else if(status === "approved")
+                approved++;
+
+            else if(status === "rejected")
+                rejected++;
+        });
+
+    pendingOrderCount.textContent =
+        pending;
+
+    approvedOrderCount.textContent =
+        approved;
+
+    rejectedOrderCount.textContent =
+        rejected;
+}
+
+
+async function approveOrder(orderId){
+
+    const order =
+        allOrders[orderId];
+
+    if(!order)
+        return;
+
+    if(
+        (order.status || "pending") !==
+        "pending"
+    ){
+        alert(
+            "This order has already been processed."
+        );
+
+        return;
+    }
+
+    if(
+        !confirm(
+            "Approve this order?\n\n" +
+            "Customer: " +
+            (order.customerName || "") +
+            "\nPlan: " +
+            (order.planName || order.plan || "") +
+            "\nAmount: ₱" +
+            Number(order.price || 0).toLocaleString()
+        )
+    ){
+        return;
+    }
+
+    try{
+
+        let code = "";
+        let exists = true;
+
+        while(exists){
+
+            code =
+                generateCode();
+
+            exists =
+                !!allCodes[code];
+        }
+
+        const now =
+            Date.now();
+
+        const accessCodeData = {
+
+            username:
+                order.customerName || "",
+
+            active:false,
+
+            createdAt:now,
+
+            activatedAt:null,
+
+            expiresAt:null,
+
+            plan:
+                order.plan || "",
+
+            orderNumber:
+                order.orderNumber || "",
+
+            orderId:
+                orderId
+        };
+
+
+        /*
+            ONE ATOMIC UPDATE
+
+            This creates the access code AND
+            approves the order at the same time.
+        */
+
+        const updates = {};
+
+        updates[
+            "accessCodes/" + code
+        ] =
+            accessCodeData;
+
+        updates[
+            "accessOrders/" +
+            orderId +
+            "/status"
+        ] =
+            "approved";
+
+        updates[
+            "accessOrders/" +
+            orderId +
+            "/accessCode"
+        ] =
+            code;
+
+        updates[
+            "accessOrders/" +
+            orderId +
+            "/approvedAt"
+        ] =
+            now;
+
+
+        await update(
+            ref(db),
+            updates
+        );
+
+
+        alert(
+            "ORDER APPROVED\n\n" +
+            "Customer: " +
+            (order.customerName || "") +
+            "\n\nACCESS CODE:\n" +
+            code
+        );
+
+    }catch(error){
+
+        console.error(
+            "APPROVE ERROR:",
+            error
+        );
+
+        alert(
+            "Failed to approve order.\n\n" +
+            (
+                error.message ||
+                error.code ||
+                "Firebase error"
+            )
+        );
+    }
+}
+
+
+async function rejectOrder(orderId){
+
+    const order =
+        allOrders[orderId];
+
+    if(!order)
+        return;
+
+    if(
+        (order.status || "pending") !==
+        "pending"
+    ){
+        return;
+    }
+
+    if(
+        !confirm(
+            "Reject this order?\n\n" +
+            (order.customerName || "")
+        )
+    ){
+        return;
+    }
+
+    try{
+
+        await update(
+            ref(
+                db,
+                "accessOrders/" + orderId
+            ),
+            {
+                status:"rejected",
+                rejectedAt:Date.now()
+            }
+        );
+
+    }catch(error){
+
+        console.error(
+            "REJECT ERROR:",
+            error
+        );
+
+        alert(
+            "Failed to reject order.\n\n" +
+            (
+                error.message ||
+                error.code ||
+                "Firebase error"
+            )
+        );
+    }
+}
+
+
+function renderOrders(){
+
+    const search =
+        orderSearch.value
+            .trim()
+            .toLowerCase();
+
+    let entries =
+        Object.entries(allOrders);
+
+    entries.sort(
+        ([idA,a],[idB,b]) =>
+            Number(b.createdAt || 0) -
+            Number(a.createdAt || 0)
+    );
+
+    if(search){
+
+        entries =
+            entries.filter(
+                ([id,order]) => {
+
+                    const text = [
+
+                        id,
+                        order.orderNumber,
+                        order.customerName,
+                        order.planName,
+                        order.referenceNumber,
+                        order.senderNumber,
+                        order.gcashNumber,
+                        order.message,
+                        order.status
+
+                    ]
+                    .join(" ")
+                    .toLowerCase();
+
+                    return text.includes(search);
+                }
+            );
+    }
+
+    if(!entries.length){
+
+        ordersContainer.innerHTML =
+            `<div class="empty">
+                No customer orders found.
+            </div>`;
+
+        return;
+    }
+
+    let html = `
+    <table class="orderTable">
+
+    <thead>
+
+    <tr>
+        <th>ORDER</th>
+        <th>CUSTOMER</th>
+        <th>PLAN</th>
+        <th>AMOUNT</th>
+        <th>GCASH</th>
+        <th>REFERENCE</th>
+        <th>SENDER</th>
+        <th>MESSAGE</th>
+        <th>DATE</th>
+        <th>STATUS</th>
+        <th>ACCESS CODE</th>
+        <th>ACTION</th>
+    </tr>
+
+    </thead>
+
+    <tbody>
+    `;
+
+    for(
+        const [orderId,order]
+        of entries
+    ){
+
+        const status =
+            order.status || "pending";
+
+        const safeStatus =
+            [
+                "pending",
+                "approved",
+                "rejected"
+            ].includes(status)
+            ? status
+            : "pending";
+
+        html += `
+        <tr>
+
+        <td>
+            <span class="code">
+                ${escapeHTML(
+                    order.orderNumber || "—"
+                )}
+            </span>
+        </td>
+
+        <td>
+            <strong>
+                ${escapeHTML(
+                    order.customerName || "—"
+                )}
+            </strong>
+        </td>
+
+        <td>
+            ${escapeHTML(
+                order.planName ||
+                order.plan ||
+                "—"
+            )}
+        </td>
+
+        <td>
+            ₱${Number(
+                order.price || 0
+            ).toLocaleString()}
+        </td>
+
+        <td>
+            ${escapeHTML(
+                order.gcashNumber || "—"
+            )}
+        </td>
+
+        <td>
+            ${escapeHTML(
+                order.referenceNumber || "—"
+            )}
+        </td>
+
+        <td>
+            ${escapeHTML(
+                order.senderNumber || "—"
+            )}
+        </td>
+
+        <td>
+            <div class="orderMessage">
+                ${escapeHTML(
+                    order.message || "—"
+                )}
+            </div>
+        </td>
+
+        <td>
+            ${formatDate(
+                order.createdAt
+            )}
+        </td>
+
+        <td>
+            <span class="orderBadge ${safeStatus}">
+                ${safeStatus.toUpperCase()}
+            </span>
+        </td>
+
+        <td>
+            ${
+                order.accessCode
+                ?
+                `<span class="viewCode">
+                    ${escapeHTML(order.accessCode)}
+                </span>`
+                :
+                "—"
+            }
+        </td>
+
+        <td>
+
+        ${
+            safeStatus === "pending"
+
+            ?
+
+            `
+            <button
+                class="approveBtn"
+                data-approve="${escapeHTML(orderId)}">
+                APPROVE
+            </button>
+
+            <button
+                class="rejectBtn"
+                data-reject="${escapeHTML(orderId)}">
+                REJECT
+            </button>
+            `
+
+            :
+
+            "—"
+        }
+
+        </td>
+
+        </tr>
+        `;
+    }
+
+    html += `
+    </tbody>
+    </table>
+    `;
+
+    ordersContainer.innerHTML =
+        html;
+
+    ordersContainer
+        .querySelectorAll("[data-approve]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    approveOrder(
+                        button.dataset.approve
+                    );
+                }
+            );
+        });
+
+    ordersContainer
+        .querySelectorAll("[data-reject]")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    rejectOrder(
+                        button.dataset.reject
+                    );
+                }
+            );
+        });
+}
+
+
+orderSearch.addEventListener(
+    "input",
+    renderOrders
+);
+
+
+/*
+==================================================
+ACCESS CODE LISTENER
+==================================================
+*/
+
+onValue(
+
+    ref(
+        db,
+        "accessCodes"
+    ),
+
+    snapshot => {
+
+        allCodes =
+            snapshot.val() || {};
+
+        updateCounts();
+        renderTable();
+
+        firebaseStatus.textContent =
+            "● ACCESS CODES: CONNECTED";
+
+        firebaseStatus.className =
+            "firebaseStatus online";
+    },
+
+    error => {
+
+        console.error(
+            "ACCESS CODES ERROR:",
+            error
+        );
+
+        firebaseStatus.textContent =
+            "● ACCESS CODES ERROR: " +
+            (
+                error.message ||
+                error.code ||
+                "Unknown error"
+            );
+
+        firebaseStatus.className =
+            "firebaseStatus offline";
+    }
+);
+
+
+/*
+==================================================
+CUSTOMER ORDERS LISTENER
+==================================================
+*/
+
+onValue(
+
+    ref(
+        db,
+        "accessOrders"
+    ),
+
+    snapshot => {
+
+        allOrders =
+            snapshot.val() || {};
+
+        updateOrderCounts();
+        renderOrders();
+
+        firebaseStatus.textContent =
+            "● FIREBASE CONNECTED — ORDERS OK";
+
+        firebaseStatus.className =
+            "firebaseStatus online";
+    },
+
+    error => {
+
+        console.error(
+            "ACCESS ORDERS ERROR:",
+            error
+        );
+
+        pendingOrderCount.textContent =
+            "?";
+
+        approvedOrderCount.textContent =
+            "?";
+
+        rejectedOrderCount.textContent =
+            "?";
+
+        ordersContainer.innerHTML =
+            `
+            <div
+                class="empty"
+                style="color:#ff6868;">
+
+                <strong>
+                    CUSTOMER ORDERS FIREBASE ERROR
+                </strong>
+
+                <br><br>
+
+                ${escapeHTML(
+                    error.message ||
+                    error.code ||
+                    "Unable to read accessOrders"
+                )}
+
+                <br><br>
+
+                Check your Firebase Realtime Database
+                Rules for <b>accessOrders</b>.
+
+            </div>
+            `;
+
+        firebaseStatus.textContent =
+            "● ORDER DATABASE ERROR";
+
+        firebaseStatus.className =
+            "firebaseStatus offline";
+    }
+);
+
+
+setFilter("active");
+
+
+setInterval(
+    () => {
+
+        updateCounts();
+        renderTable();
+
+    },
+    30000
+);
+
+</script>
+
+</body>
+</html>
